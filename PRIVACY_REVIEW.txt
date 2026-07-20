@@ -1,0 +1,62 @@
+FaceFinder source privacy review
+================================
+
+Result
+------
+No obvious personal information belonging to the repository owner was found in the supplied source archive.
+
+The review did not find:
+- Personal email addresses
+- Personal names or GitHub usernames embedded in the source
+- API keys, passwords, access tokens, or credentials
+- Fixed home-directory paths containing a personal Windows username
+- Code that uploads photographs, face embeddings, findings, or scan records
+- Advertising, analytics submission, or remote telemetry code
+
+Network behavior found
+----------------------
+Network URLs appear in build_installer.ps1. They are used to download:
+- Python runtime
+- get-pip.py
+- Microsoft VC++ Redistributable
+- InsightFace Buffalo-L model
+- Inno Setup
+
+This is build-time dependency downloading, not user-data uploading.
+
+Local sensitive data handled by the application
+-----------------------------------------------
+The application can create or retain sensitive local information:
+- Reference-person names and photos
+- Biometric face embeddings
+- Face crops
+- Local source-image paths
+- Similarity scores and bounding boxes
+- Image hashes
+- SQLite, CSV, and JSON scan records
+- Settings, findings, and diagnostic logs
+
+Privacy risks
+-------------
+1. A public repository must not include data/, Findings/, logs/, runtime status files, real photos, databases, or generated embeddings.
+2. Full local paths stored in findings or logs can expose Windows usernames, folder names, and drive organization when shared.
+3. Reference photos, crops, and embeddings are biometric/personal data and should be protected.
+4. Copying or moving results can create additional uncontrolled copies.
+5. An offline application is not automatically secure; malware, other Windows users, backups, and cloud-synced folders may still access local data.
+6. Laws governing face recognition and biometric processing vary by location and intended use.
+
+Recommended before publishing
+-----------------------------
+- Add the supplied .gitignore rules.
+- Upload source code only.
+- Exclude runtime/, data/, Findings/, logs/, staging/, dist/, models, DLLs, databases, and generated installers from the source branch.
+- Publish installers through GitHub Releases.
+- Add a SHA-256 checksum for every release.
+- Add a clear privacy section and responsible-use notice to README.md.
+- Add the complete intended LICENSE file.
+- Confirm redistribution permission for InsightFace models, NVIDIA components, Microsoft redistributables, and all third-party packages.
+- Test the release from a clean Windows account to ensure no developer-specific paths or data are included.
+
+Conclusion
+----------
+The supplied source does not appear to expose the owner's personal identity or credentials. The main privacy concerns relate to the biometric and local-file data that FaceFinder processes and stores during use, not to hidden data collection by the source itself.

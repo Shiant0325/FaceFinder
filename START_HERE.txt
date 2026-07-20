@@ -1,0 +1,266 @@
+FACEFINDER — BUILD, INSTALL, AND FIRST-START GUIDE
+==================================================
+
+OVERVIEW
+--------
+FaceFinder is distributed as a single offline Windows installer:
+
+    FaceFinder_Setup_Windows_x64.exe
+
+The installer contains the application, private Python runtime, required
+packages, InsightFace models, ONNX Runtime, CPU support, optional NVIDIA GPU
+runtime files, and the Microsoft Visual C++ prerequisite.
+
+The target PC does not need a separate installation of Python, Conda, pip,
+InsightFace, CUDA Toolkit, or cuDNN.
+
+SYSTEM REQUIREMENTS
+-------------------
+Build computer:
+- Windows 10 or Windows 11, 64-bit
+- PowerShell
+- Internet connection for the first complete build
+- Several gigabytes of free disk space
+- Permission to run/install the Microsoft Visual C++ Redistributable
+
+Target computer:
+- Windows 10 or Windows 11, 64-bit
+- Sufficient disk space for FaceFinder, models, and findings
+- Optional supported NVIDIA GPU with a recent NVIDIA driver
+
+PART 1 — PREPARE THE SOURCE
+---------------------------
+1. Extract the FaceFinder source ZIP completely.
+2. Move it to a normal writable path, preferably a short one, for example:
+
+       D:\FaceFinderBuilder
+
+3. Confirm these files are present:
+
+       BUILD_INSTALLER.bat
+       build_installer.ps1
+       FaceFinder.iss
+       FaceFinderLauncher.cs
+       app.py
+       ui.py
+       face_engine.py
+       portable_check.py
+
+4. Optional offline build assets may be placed in:
+
+       build_assets\
+
+   Supported examples:
+
+       buffalo_l.zip
+       python-3.11.9-embed-amd64.zip
+       get-pip.py
+       vc_redist.x64.exe
+       innosetup-6.7.3.exe
+
+   Valid local assets are used before internet downloads.
+
+PART 2 — BUILD THE INSTALLER
+----------------------------
+1. Close any running FaceFinder instance.
+2. Double-click:
+
+       BUILD_INSTALLER.bat
+
+   Or run from PowerShell:
+
+       .\BUILD_INSTALLER.bat
+
+3. Keep the window open until the build completes.
+
+The builder will:
+- Clean old staging output
+- Create a private embedded Python runtime
+- Install FaceFinder dependencies
+- Install ONNX Runtime CPU/GPU support
+- Bundle NVIDIA CUDA and cuDNN runtime packages
+- Download or use a local Buffalo-L model archive
+- Bundle the InsightFace models
+- Download or use the Microsoft VC++ Redistributable
+- Build the FaceFinder launcher
+- Validate imports and runtime dependencies
+- Find or install Inno Setup
+- Compress everything into one offline installer EXE
+
+EXPECTED BUILD TIME
+-------------------
+A complete installer build normally takes about:
+
+    10–20 minutes
+
+The exact time depends on internet speed, disk speed, CPU compression
+performance, antivirus scanning, and whether files are already cached.
+
+The final Inno Setup compression stage can look slow. The output EXE may remain
+small at first while ISCC.exe is still working. Do not close the builder.
+
+To check progress in another PowerShell window:
+
+    Get-Process ISCC -ErrorAction SilentlyContinue |
+    Select-Object Id, CPU, StartTime
+
+If ISCC is shown and its CPU value keeps increasing, the build is active.
+
+PART 3 — FIND THE COMPLETED INSTALLER
+-------------------------------------
+After a successful build, the installer is created here:
+
+    dist\FaceFinder_Setup_Windows_x64.exe
+
+Verify it:
+
+    Get-Item ".\dist\FaceFinder_Setup_Windows_x64.exe" |
+    Select-Object Name,
+        @{Name="SizeGB";Expression={[math]::Round($_.Length / 1GB, 2)}},
+        LastWriteTime
+
+PART 4 — INSTALL FACEFINDER
+---------------------------
+1. Copy the installer to the target Windows PC.
+2. Double-click:
+
+       FaceFinder_Setup_Windows_x64.exe
+
+3. Approve the Windows UAC prompt if shown.
+4. Choose the installation folder or keep the default.
+5. Continue with installation.
+6. Wait until installation completes.
+7. Launch FaceFinder from the completion page, desktop shortcut, or Start Menu.
+
+The installer will:
+- Install FaceFinder
+- Install the private Python runtime
+- Install bundled models
+- Install CPU/GPU dependencies
+- Install or repair the Microsoft Visual C++ runtime when needed
+- Create shortcuts
+- Register an uninstaller
+
+No pip, Conda, system Python, or first-run model download should be required.
+
+PART 5 — FIRST START AND ENGINE TEST
+------------------------------------
+1. Launch FaceFinder.
+2. Open Settings or the engine setup screen.
+3. Select a mode:
+
+   Automatic
+       Tries NVIDIA GPU first and may fall back to CPU.
+
+   GPU only
+       Requires all InsightFace models to use CUDAExecutionProvider.
+
+   CPU only
+       Uses CPUExecutionProvider and works without an NVIDIA GPU.
+
+4. Run the complete Face Engine Test.
+
+For a successful GPU-only test, detection, recognition, landmarks, and
+gender/age model sessions must show:
+
+    CUDAExecutionProvider
+
+Seeing CUDAExecutionProvider only in the available-provider list is not enough.
+The actual loaded model sessions must use CUDA.
+
+PART 6 — CREATE A PERSON AND RUN A SCAN
+---------------------------------------
+1. Open People or Reference Profiles.
+2. Create a person profile.
+3. Add clear reference photos.
+4. Generate or update the reference face vector.
+5. Open New Scan.
+6. Select one or more local folders or drives.
+7. Configure similarity, image-size, copy/move, crop, and output options.
+8. Start the scan.
+9. Review all matches manually.
+10. Matching photos are organized into local Finding folders.
+
+PRIVACY AND LOCAL DATA
+----------------------
+Face detection and matching run locally on the device.
+
+FaceFinder may store:
+
+    data\persons\     Reference names, photos, and face vectors
+    Findings\         Match results, crops, databases, CSV, and JSON files
+    logs\             Setup and diagnostic information
+
+These locations may contain biometric data, personal photos, local paths,
+Windows usernames contained in paths, and scan history.
+
+Do not publish these generated folders in a public repository:
+
+    runtime\
+    staging\
+    build_temp\
+    build_logs\
+    downloads\
+    tools\
+    dist\
+    data\
+    Findings\
+    logs\
+
+Also avoid publishing generated or third-party binaries such as:
+
+    *.onnx
+    *.dll
+    *.exe
+    *.msi
+    *.sqlite
+    *.db
+
+TROUBLESHOOTING
+---------------
+Build log:
+
+    build_logs\build.log
+
+1. Download link failed
+   Place the required file manually in build_assets\ and rebuild.
+
+2. Buffalo-L failed
+   Place:
+
+       build_assets\buffalo_l.zip
+
+3. Inno Setup compiler not found
+   Install Inno Setup manually or follow the exact ISCC.exe location shown by
+   the builder, then rerun the build.
+
+4. CUDA is listed but models use CPU
+   A required CUDA dependency did not load. Check the engine-test report and
+   verify the actual model providers.
+
+5. Final installer looks too small
+   Check whether ISCC.exe is still running.
+
+6. Build was interrupted
+   Run BUILD_INSTALLER.bat again. Cached downloads may make the next run faster.
+
+UNINSTALLING
+------------
+Open:
+
+    Windows Settings
+    → Apps
+    → Installed apps
+    → FaceFinder
+    → Uninstall
+
+User-created findings, exported images, or backups outside the installation
+folder may need to be removed separately.
+
+IMPORTANT
+---------
+- Use FaceFinder only with images you own or are authorized to process.
+- Do not use it for unlawful surveillance, stalking, or identification.
+- Always review face matches manually.
+- Protect reference photos, embeddings, findings, and databases.
+- Third-party libraries and models remain subject to their own licenses.

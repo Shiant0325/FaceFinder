@@ -1,0 +1,12 @@
+numpy==1.26.4
+opencv-python-headless==4.10.0.84
+Pillow==10.4.0
+onnx==1.17.0
+scipy==1.14.1
+scikit-image==0.24.0
+requests==2.32.3
+tqdm==4.67.1
+PySide6-Essentials==6.8.2.1
+psutil==6.1.1
+nvidia-ml-py==12.560.30
+insightface==1.0.1

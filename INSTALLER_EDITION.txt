@@ -1,0 +1,8 @@
+FaceFinder Windows Installer Edition
+
+- Bundled private Python runtime
+- Bundled PySide6, InsightFace, ONNX Runtime GPU and CPU fallback
+- Bundled CUDA 12.4, cuBLAS 12.4 and cuDNN 9.1 runtime DLLs
+- Bundled buffalo_l InsightFace model pack
+- Microsoft Visual C++ x64 Redistributable is installed by FaceFinder_Setup.exe
+- User profiles and Finding folders are stored under %LOCALAPPDATA%\FaceFinder
